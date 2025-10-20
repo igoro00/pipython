@@ -10,40 +10,32 @@ squares.
 import csv
 import math
 import random
+import sys
 
-file = open("data.csv", newline="")
-temp = 0.0
+data = []
+min_vals = []
+max_vals = []
 
-
-def distance(point, center):
-    global temp
+def distance(point:list[float], center:list[float]):
     temp = 0.0
-    for i in range(len(point)):
-        point_x = normalize(point[i], i)
-        center_x = normalize(center[i], i)
+    for dimension in range(len(point)):
+        point_x = normalize(point[dimension], dimension)
+        center_x = normalize(center[dimension], dimension)
         temp += (point_x - center_x)**2
     return math.sqrt(temp)
 
+def normalize(val:float, dimension:int)->float:
+    range_val = (max_vals[dimension]-min_vals[dimension])
+    return (val - min_vals[dimension]) / range_val
 
-def normalize(val, coord):
-    column = []
-    for point in data:
-        column.append(float(point[coord]))
-    min_val = min(column)
-    max_val = max(column)
-    range = max_val - min_val
-    return (float(val) - min_val) / range
-
-
-def initialize_centers(n_centers):
+def initialize_centers(n_centers:int)->list[list[float]]:
     return random.sample(data, n_centers)
 
-
-def assign_clusters(centers):
+def assign_clusters(centers:list[list[float]])->tuple[list[int], float]:
     labels = []
     wcss = 0.0
     for point in data:
-        dists = []
+        dists:list[float] = []
         for center in centers:
             dists.append(distance(point, center))
         min_dist = min(dists)
@@ -51,25 +43,15 @@ def assign_clusters(centers):
         wcss += min_dist**2
     return labels, wcss
 
-
-def update_centers(centers, labels):
+def update_centers(centers: list[list[float]], labels: list[int]):
     for c in range(len(centers)):
         cluster = []
-        l = 0
-        for point in data:
-            if labels[l] == c:
+        for (i, point) in enumerate(data):
+            if labels[i] == c:
                 cluster.append(point)
-            l += 1
         if len(cluster) > 0:
-            center = []
-            for i in range(len(point)):
-                global temp
-                temp = 0.0
-                for j in range(len(cluster)):
-                    temp += float(cluster[j][i])
-                center.append(temp / len(cluster))
-            centers[c] = center
-
+            unzipped = list(zip(*cluster))
+            centers[c] = [sum(dimension)/len(dimension) for dimension in unzipped]
 
 def kmeans(n_clusters):
     centers = initialize_centers(n_clusters)
@@ -79,26 +61,23 @@ def kmeans(n_clusters):
         n_iters += 1
         labels, wcss = assign_clusters(centers)
         if labels == old_labels:
-            break
+            return labels, wcss, n_iters
         update_centers(centers, labels)
         old_labels = labels
-    return labels, wcss, n_iters
 
+def load_data(filename: str)-> list[list[float]]:
+    with open(filename, newline='') as f:
+        data_reader = csv.reader(f, quoting = csv.QUOTE_NONNUMERIC)
+        return list(data_reader)
 
-data = []
-
-
-def load_data():
-    data_reader = csv.reader(file)
-    for row in data_reader:
-        data.append(row)
+if __name__ == "__main__":
+    data = load_data(sys.argv[-1])
+    unzipped = list(zip(*data))
+    min_vals = [min(dimension) for dimension in unzipped]
+    max_vals = [max(dimension) for dimension in unzipped]
     labels, wcss, n_iters = kmeans(3)
     print("Cluster sizes:")
     for c in range(3):
         print(f"{c + 1} -", labels.count(c))
     print("Iterations:", n_iters)
     print("WCSS:", wcss)
-
-
-load_data()
-file.close()
