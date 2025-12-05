@@ -17,3 +17,6 @@ class Sheep(Animal):
             (-1+0j) # left
         ])
         self.pos += (direction * self.step)
+
+    def kill(self):
+        self.alive = False

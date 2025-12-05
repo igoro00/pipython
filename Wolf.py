@@ -1,25 +1,25 @@
 from Animal import Animal
 from Sheep import Sheep
+from Herd import Herd
 import random
 import cmath
 
 class Wolf(Animal):
-    sheep: list[Sheep]
-    def __init__(self, step: float, sheep: list[Sheep]) -> None:
-        self.sheep = sheep
+    herd: Herd
+    def __init__(self, step: float, herd: Herd) -> None:
+        self.herd = herd
         super().__init__(0+0j, step)
 
-    def update(self):
-        closestSheep = self.sheep[0]
-        closestDist = self.sheep[0].dist(self.pos)
-        for s in self.sheep[1:]:
-            d = s.dist(self.pos)
-            if d < closestDist:
-                closestSheep = s
-                closestDist = d
+    def update(self) -> tuple[Sheep, bool]:
+        closest_sheep, closest_dist = self.herd.closest_sheep(self.pos)
         
-        if closestDist <= self.step:
-            self.pos = closestSheep.pos
-            return
+        # kill sheep
+        if closest_dist <= self.step:
+            self.pos = closest_sheep.pos
+            closest_sheep.kill()
+            return closest_sheep, True
 
-        self.pos = cmath.rect(self.step, cmath.phase(self.pos))
+        # run after a sheep
+        self.pos += cmath.rect(self.step, cmath.phase(closest_sheep.pos-self.pos))
+        return closest_sheep, False
+
