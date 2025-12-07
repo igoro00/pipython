@@ -22,10 +22,10 @@ class Sheep(Animal):
 
     def update(self):
         direction = random.choice(list({
-            "RIGHT":(1+0j), # right
-            "UP":(0+1j), # up
-            "DOWN":(0-1j), # down
-            "LEFT":(-1+0j) # left
+            "RIGHT":(1+0j),
+            "UP":(0+1j),
+            "DOWN":(0-1j),
+            "LEFT":(-1+0j)
         }.items()))
         logger.debug(f"Sheep {self.i} chose direction ${direction[0]}")
         self.pos += (direction[1] * self.step)

@@ -24,7 +24,7 @@ def main():
     wait = args["wait"]
     log = args["log"]
 
-    if log:
+    if log is not None:
         logging.basicConfig(
             filename="chase.log", 
             filemode='w', 
@@ -32,14 +32,14 @@ def main():
             format='%(asctime)s %(levelname)s %(message)s'
         )
 
-
-
     spawn_limit = 10
     sheep_step = 0.5
     wolf_step = 1
+
     if args["config"]:
         config = configparser.ConfigParser()
         config.read(args["config"])
+        # TODO: error handling
         spawn_limit = float(config["Sheep"]["InitPosLimit"])
         sheep_step = float(config["Sheep"]["MoveDist"])
         wolf_step = float(config["Wolf"]["MoveDist"])
@@ -60,7 +60,7 @@ def main():
         if killed:
             msg += f"killed sheep {closest_sheep.i}"
         else:
-            msg += f"is running after sheep {closest_sheep.i} at ({closest_sheep.pos.real:.3f}, {closest_sheep.pos.imag:.3f})"
+            msg += f"is chasing sheep {closest_sheep.i} at ({closest_sheep.pos.real:.3f}, {closest_sheep.pos.imag:.3f})"
         return msg
 
     for round in range(rounds):
@@ -72,7 +72,7 @@ def main():
         json_out.append({
             "round_no": round,
             "wolf_pos": [wolf.pos.real, wolf.pos.imag],
-            "sheep_pos": [x.json_pos() for x in herd.sheep]
+            "sheep_pos": [x.json_pos() for x in herd.sheep] # TODO: musi wpisywać none dla martwych owiec a tutaj sa tylko zywe
         })
         csv_out.append({
             "round_no": round,
