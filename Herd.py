@@ -6,8 +6,9 @@ logger = logging.getLogger(__name__)
 
 class Herd():
     sheep: list[Sheep] = []
-
+    n_sheep: int
     def __init__(self, n_sheep: int, sheep_step: float, spawn_limit:float) -> None:
+        self.n_sheep = n_sheep
         for i in range(n_sheep):
             self.sheep.append(Sheep(spawn_limit, sheep_step, i))
     
@@ -30,3 +31,9 @@ class Herd():
     def update(self):
         for s in self.sheep:
             s.update()
+    
+    def json_sheep_pos(self):
+        out = [None] * self.n_sheep
+        for s in self.sheep:
+            out[s.i] = s.json_pos()
+        return out

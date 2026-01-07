@@ -71,8 +71,8 @@ def main():
         closest_sheep, killed = wolf.update()
         json_out.append({
             "round_no": round,
-            "wolf_pos": [wolf.pos.real, wolf.pos.imag],
-            "sheep_pos": [x.json_pos() for x in herd.sheep] # TODO: musi wpisywać none dla martwych owiec a tutaj sa tylko zywe
+            "wolf_pos": wolf.json_pos(),
+            "sheep_pos": herd.json_sheep_pos()
         })
         csv_out.append({
             "round_no": round,
