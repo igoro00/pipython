@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+        {% block content %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>f1</th>
+                    <th>f2</th>
+                    <th>Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.id }}</td>
+                    <td>{{ record.f1 }}</td>
+                    <td>{{ record.f2 }}</td>
+                    <td>{{ record.category }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}
