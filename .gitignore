@@ -3,3 +3,4 @@ pos.json
 __pycache__
 chase.log
 data.db
+.venv

@@ -16,6 +16,9 @@
                     <td>{{ record.f1 }}</td>
                     <td>{{ record.f2 }}</td>
                     <td>{{ record.category }}</td>
+                    <td><form method="post" action="/delete/{{ record.id }}">
+                        <input type="submit" value="Delete">
+                    </form></td>
                 </tr>
                 {% endfor %}
             </tbody>
