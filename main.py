@@ -1,9 +1,9 @@
 import os
 import sys
-import json
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from dataclasses import dataclass
-from flask import Flask, render_template, redirect, url_for, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import validates
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, StringField, DecimalField
 from wtforms.validators import DataRequired
@@ -37,11 +37,21 @@ class Record(db.Model):
     f2 = db.Column(db.Float, nullable=False)
     category = db.Column(db.String(100), nullable=False)
 
+    @validates("category")
+    def validate_string(self, key, value):
+        if not isinstance(value, str):
+            raise TypeError(f"{key} must be a string")
+        
+        if not value.strip():
+            raise ValueError(f"{key} cannot be empty")
+        return value
+
 class NewRecordForm(FlaskForm):
     f1 = DecimalField('f1', validators=[DataRequired()])
     f2 = DecimalField('f2', validators=[DataRequired()])
     category = StringField('Category', validators=[DataRequired()])
     submit = SubmitField('Add Record')
+
 
 @app.route('/')
 def index():
@@ -69,6 +79,10 @@ def delete_record(id):
     db.session.commit()
     return redirect(url_for('index'))
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
 @app.route('/api/data', methods=['GET'])
 def get_data():
     records = Record.query.all()
@@ -76,12 +90,33 @@ def get_data():
 
 @app.route('/api/data', methods=['POST'])
 def add_data():
-    data = request.get_json()
-    record = Record(*data)
-    db.session.add(record)
-    db.session.commit()
-    return jsonify(record)
+    try:
+        data = request.get_json()
 
+        if not data:
+            return jsonify({'error': 'No input data provided'}), 400
+        
+        for field in ['f1', 'f2', 'category']:
+            if field not in data:
+                raise ValueError(f"{field} cannot be empty")
+    
+        record = Record(**data)
+        db.session.add(record)
+        db.session.commit()
+        
+        return jsonify({"id":record.id}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/api/data/<int:id>', methods=['DELETE'])
+def delete_data(id):
+    record = Record.query.get(id)
+    if not record:
+        return jsonify({'error': 'Record not found'}), 404
+    
+    db.session.delete(record)
+    db.session.commit()
+    return jsonify({"id":record.id}), 200
 
 
 if __name__ == '__main__':
