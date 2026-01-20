@@ -9,7 +9,6 @@ from wtforms import SubmitField, StringField, DecimalField
 from wtforms.validators import DataRequired
 
 
-# SQLite URI compatible
 WIN = sys.platform.startswith('win')
 if WIN:
     prefix = 'sqlite:///'
@@ -21,7 +20,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'secret string')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', prefix + os.path.join(app.root_path, 'data.db'))
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
