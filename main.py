@@ -66,7 +66,6 @@ def add_record():
         f2 = form.f2.data
         category = form.category.data
         record = Record(f1=f1, f2=f2, category=category)
-        print(record)
         db.session.add(record)
         db.session.commit()
         return redirect(url_for('index'))
@@ -94,7 +93,7 @@ def add_data():
         data = request.get_json()
 
         if not data:
-            return jsonify({'error': 'No input data provided'}), 400
+            raise Exception('No input data provided')
         
         for field in ['f1', 'f2', 'category']:
             if field not in data:
